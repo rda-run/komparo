@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/rda-run/komparo/main/schema/komparo-snapshot-v1.schema.json",
+  "title": "Komparo Schema Snapshot",
+  "description": "Represents the structural schema of a PostgreSQL database.",
+  "type": "object",
+  "properties": {
+    "version": { "type": "string" },
+    "postgresql_version": { "type": "string" },
+    "tables": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "columns": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "nullable": { "type": "boolean" },
+                "default": { "type": ["string", "null"] },
+                "max_length": { "type": ["integer", "null"] },
+                "numeric_precision": { "type": ["integer", "null"] },
+                "numeric_scale": { "type": ["integer", "null"] },
+                "collation": { "type": ["string", "null"] }
+              },
+              "required": ["name", "type", "nullable"]
+            }
+          }
+        },
+        "required": ["name", "columns"]
+      }
+    },
+    "indices": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "table_name": { "type": "string" },
+          "definition": { "type": "string" }
+        },
+        "required": ["name", "table_name", "definition"]
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "table_name": { "type": "string" },
+          "definition": { "type": "string" }
+        },
+        "required": ["name", "type", "table_name", "definition"]
+      }
+    }
+  },
+  "required": ["postgresql_version", "tables"]
+}
