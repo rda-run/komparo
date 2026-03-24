@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Remote JSON Validation**: Added support for fetching JSON snapshot files
+  via HTTP and HTTPS URLs in the `validate` command using the `-f` flag.
+
 ## [0.1.1] - 2026-03-23
 
 ### Added
