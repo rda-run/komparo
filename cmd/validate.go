@@ -3,7 +3,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/rda-run/komparo/internal/db"
 	"github.com/rda-run/komparo/internal/diff"
@@ -21,9 +24,27 @@ var validateCmd = &cobra.Command{
 		file, _ := cmd.Flags().GetString("file")
 		format, _ := cmd.Flags().GetString("format")
 		
-		data, err := os.ReadFile(file)
-		if err != nil {
-			return fmt.Errorf("failed to read snapshot file: %w", err)
+		var data []byte
+		var err error
+
+		if strings.HasPrefix(file, "http://") || strings.HasPrefix(file, "https://") {
+			resp, httpErr := http.Get(file)
+			if httpErr != nil {
+				return fmt.Errorf("failed to fetch remote snapshot file: %w", httpErr)
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("failed to fetch remote snapshot file: HTTP %d", resp.StatusCode)
+			}
+			data, err = io.ReadAll(resp.Body)
+			if err != nil {
+				return fmt.Errorf("failed to read remote snapshot file body: %w", err)
+			}
+		} else {
+			data, err = os.ReadFile(file)
+			if err != nil {
+				return fmt.Errorf("failed to read local snapshot file: %w", err)
+			}
 		}
 		
 		var expected schema.SchemaSnapshot
@@ -60,7 +81,7 @@ var validateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(validateCmd)
 	validateCmd.Flags().StringP("db", "d", "", "PostgreSQL connecting string (required)")
-	validateCmd.Flags().StringP("file", "f", "komparo-snapshot.json", "Input JSON snapshot file path (required)")
+	validateCmd.Flags().StringP("file", "f", "komparo-snapshot.json", "Input JSON snapshot local file path or remote URL (required)")
 	validateCmd.Flags().StringP("format", "o", "text", "Output format (text, json)")
 	validateCmd.MarkFlagRequired("db")
 	validateCmd.MarkFlagRequired("file")
