@@ -24,10 +24,13 @@ database environment (like production) at runtime.
 
 ## Installation
 
-Coming soon.
-
 ```bash
-go install github.com/rda-run/komparo@latest
+# Linux/MacOS/Windows
+curl -fsSL https://install.rda.run/rda-run/komparo@latest! | bash
+
+# RPM-Based distros
+sudo dnf localinstall -y https://rpm.rda.run/repo.rpm
+sudo dnf install komparo
 ```
 
 ## Quick Start
@@ -48,6 +51,12 @@ generated snapshot:
 
 ```bash
 komparo validate --db "postgres://user:pass@prod-db.internal:5432/production_db?sslmode=require" --file expected_schema.json
+```
+
+The schema can be hosted online, if you want.
+
+```bash
+komparo validate --db "postgres://user:pass@prod-db.internal:5432/production_db?sslmode=require" --file https://example.com/expected_schema.json
 ```
 
 ### Output Example
