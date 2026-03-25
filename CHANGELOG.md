@@ -7,6 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-24
+
+### Added
+
+- **Environment Variable Support**: Added support for loading database connection
+  parameters (e.g., `PGSQL_HOST`, `PGSQL_USER`) from a `.env` file, making
+  the `--db` flag optional for `snapshot` and `validate` commands.
+
+### Security
+
+- **Log Sanitization**: The `snapshot` command now obscures the password
+  in the connection string output (e.g., `password=***`) to prevent
+  accidental credential leaks in logs.
+
 ## [0.2.0] - 2026-03-24
 
 ### Added
