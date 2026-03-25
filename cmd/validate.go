@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/rda-run/komparo/internal/config"
 	"github.com/rda-run/komparo/internal/db"
 	"github.com/rda-run/komparo/internal/diff"
 	"github.com/rda-run/komparo/internal/printer"
@@ -20,12 +21,16 @@ var validateCmd = &cobra.Command{
 	Short: "Compare a JSON snapshot against a live database",
 	Long:  `Reads a Komparo JSON snapshot and compares it against the structure of a live PostgreSQL database, reporting all differences.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dbURL, _ := cmd.Flags().GetString("db")
+		dbFlag, _ := cmd.Flags().GetString("db")
 		file, _ := cmd.Flags().GetString("file")
 		format, _ := cmd.Flags().GetString("format")
+
+		dbURL, err := config.GetConnectionString(dbFlag)
+		if err != nil {
+			return err
+		}
 		
 		var data []byte
-		var err error
 
 		if strings.HasPrefix(file, "http://") || strings.HasPrefix(file, "https://") {
 			resp, httpErr := http.Get(file)
@@ -80,9 +85,8 @@ var validateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(validateCmd)
-	validateCmd.Flags().StringP("db", "d", "", "PostgreSQL connecting string (required)")
+	validateCmd.Flags().StringP("db", "d", "", "PostgreSQL connecting string (optional if .env is present)")
 	validateCmd.Flags().StringP("file", "f", "komparo-snapshot.json", "Input JSON snapshot local file path or remote URL (required)")
 	validateCmd.Flags().StringP("format", "o", "text", "Output format (text, json)")
-	validateCmd.MarkFlagRequired("db")
 	validateCmd.MarkFlagRequired("file")
 }

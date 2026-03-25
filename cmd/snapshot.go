@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rda-run/komparo/internal/config"
 	"github.com/rda-run/komparo/internal/db"
 	"github.com/spf13/cobra"
 )
@@ -14,9 +15,15 @@ var snapshotCmd = &cobra.Command{
 	Short: "Extract schema and save to a JSON snapshot",
 	Long:  `Connects to a PostgreSQL database and extracts the schema structure into a JSON file format.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		dbURL, _ := cmd.Flags().GetString("db")
+		dbFlag, _ := cmd.Flags().GetString("db")
+		dbURL, err := config.GetConnectionString(dbFlag)
+		if err != nil {
+			return err
+		}
+
 		outFile, _ := cmd.Flags().GetString("out")
-		fmt.Printf("Generating snapshot from %s into %s\n", dbURL, outFile)
+		redactedURL := config.RedactConnectionString(dbURL)
+		fmt.Printf("Generating snapshot from %s into %s\n", redactedURL, outFile)
 		
 		extractor, err := db.NewExtractor(dbURL)
 		if err != nil {
@@ -46,7 +53,6 @@ var snapshotCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(snapshotCmd)
-	snapshotCmd.Flags().StringP("db", "d", "", "PostgreSQL connecting string (required)")
+	snapshotCmd.Flags().StringP("db", "d", "", "PostgreSQL connecting string (optional if .env is present)")
 	snapshotCmd.Flags().StringP("out", "o", "komparo-snapshot.json", "Output JSON file path")
-	snapshotCmd.MarkFlagRequired("db")
 }

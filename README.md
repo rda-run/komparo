@@ -33,6 +33,21 @@ sudo dnf localinstall -y https://rpm.rda.run/repo.rpm
 sudo dnf install komparo
 ```
 
+## Configuration
+
+Komparo supports loading database connection parameters from a `.env` file located in the current directory. When these variables are present, the `--db` flag becomes optional for the `snapshot` and `validate` commands.
+
+Supported environment variables:
+
+- `PGSQL_HOST` (e.g., `192.168.1.2`)
+- `PGSQL_PORT` (e.g., `5432`)
+- `PGSQL_USER` (e.g., `postgres`)
+- `PGSQL_DB` (e.g., `txlog_dev`)
+- `PGSQL_PASSWORD` (optional)
+- `PGSQL_SSLMODE` (optional, e.g., `disable` or `require`)
+
+If you provide the `--db` flag explicitly, it will override the `.env` configurations.
+
 ## Quick Start
 
 ### 1. Capture the Expected Schema
