@@ -15,6 +15,8 @@ database environment (like production) at runtime.
   database into a standard JSON file.
 - **Live Validation**: Compare a JSON snapshot against a live database to
   instantly detect schema drifts.
+- **Fix Script Generation**: Generate SQL DDL scripts to align a database with
+  the expected schema. Works with read-only users - never executes DDL automatically.
 - **Comprehensive Detection**: Identifies missing/extra tables, column type
   mismatches, missing indices, differing constraints, nullable rule violations,
   and more.
@@ -35,7 +37,7 @@ sudo dnf install komparo
 
 ## Configuration
 
-Komparo supports loading database connection parameters from a `.env` file located in the current directory. When these variables are present, the `--db` flag becomes optional for the `snapshot` and `validate` commands.
+Komparo supports loading database connection parameters from a `.env` file located in the current directory. When these variables are present, the `--db` flag becomes optional for the `snapshot`, `validate`, and `migrate` commands.
 
 Supported environment variables:
 
@@ -74,6 +76,27 @@ The schema can be hosted online, if you want.
 komparo validate --db "postgres://user:pass@prod-db.internal:5432/production_db?sslmode=require" --file https://example.com/expected_schema.json
 ```
 
+### 3. Generate Fix Script (Optional)
+
+When you need to align a database with the expected schema, generate a SQL fix
+script. This command works with read-only users and never executes DDL - it
+only generates the SQL file for your review:
+
+```bash
+komparo migrate --db "postgres://user:pass@prod-db.internal:5432/production_db?sslmode=require" --file expected_schema.json
+```
+
+This creates a `komparo_fix_YYYYMMDD_HHMMSS.sql` file with ordered DDL statements.
+Review and execute manually:
+
+```bash
+# Review the generated SQL
+less komparo_fix_*.sql
+
+# Execute after review
+psql -d production_db -f komparo_fix_YYYYMMDD_HHMMSS.sql
+```
+
 ### Output Example
 
 If differences are found, Komparo will report them:
@@ -95,10 +118,12 @@ simultaneous live database connections**. This is often impossible or insecure
 in CI/CD pipelines where the build server doesn't have access to the production
 database.
 
-Komparo splits the process into two phases (`snapshot` and `validate`), allowing
-you to embed or ship the lightweight JSON schema definition alongside your
-application, validating the database strictly at deployment time or on-demand
-without connecting two environments.
+Komparo splits the process into three phases (`snapshot`, `validate`, and optionally
+`migrate`), allowing you to embed or ship the lightweight JSON schema definition
+alongside your application, validating the database strictly at deployment time
+or on-demand without connecting two environments. The `migrate` command generates
+SQL fix scripts without requiring write permissions, keeping your CI/CD pipeline
+secure.
 
 ## License
 
