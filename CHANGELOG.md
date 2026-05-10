@@ -7,6 +7,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-05-09
+
+### Added
+
+- **Migration Script Generation**: New `migrate` command that generates SQL DDL
+  fix scripts (`komparo_fix_*.sql`) to align a database with an expected schema
+  snapshot. This command works with read-only database users and never executes
+  DDL directly - the user must review and execute the generated SQL manually.
+  - Analyzes differences between snapshot and live database
+  - Generates ordered SQL statements respecting dependencies
+  - Supports all schema object types: tables, columns, indexes, constraints,
+    sequences, views, materialized views, triggers, functions, enums, extensions
+  - DDL is organized in sections: DROP, ALTER, RECREATE, CREATE
+  - Includes transaction wrapper with COMMIT/ROLLBACK for safe testing
+
+### Security
+
+- **Read-Only by Design**: The `migrate` command maintains Komparo's philosophy
+  of never executing DDL directly. It only generates SQL files for manual review,
+  allowing usage with restricted database users that have only SELECT privileges
+  on system catalogs.
+
 ## [0.3.0] - 2026-03-24
 
 ### Added
