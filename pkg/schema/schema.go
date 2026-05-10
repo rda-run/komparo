@@ -3,18 +3,18 @@ package schema
 // SchemaSnapshot represents the entire database schema at a point in time.
 // It will be serialized to JSON.
 type SchemaSnapshot struct {
-	Version      string                 `json:"version,omitempty"`
-	PostgreSQL   string                 `json:"postgresql_version"`
-	Tables       map[string]Table       `json:"tables"`
-	Indices      map[string]Index       `json:"indices"`
-	Constraints  map[string]Constraint  `json:"constraints"`
-	Sequences    map[string]Sequence    `json:"sequences"`
-	MatViews     map[string]MatView     `json:"materialized_views"`
-	Views        map[string]View        `json:"views"`
-	Triggers     map[string]Trigger     `json:"triggers"`
-	Functions    map[string]Function    `json:"functions"`
-	Enums        map[string]Enum        `json:"enums"`
-	Extensions   map[string]Extension   `json:"extensions"`
+	Version     string                `json:"version,omitempty"`
+	PostgreSQL  string                `json:"postgresql_version"`
+	Tables      map[string]Table      `json:"tables"`
+	Indices     map[string]Index      `json:"indices"`
+	Constraints map[string]Constraint `json:"constraints"`
+	Sequences   map[string]Sequence   `json:"sequences"`
+	MatViews    map[string]MatView    `json:"materialized_views"`
+	Views       map[string]View       `json:"views"`
+	Triggers    map[string]Trigger    `json:"triggers"`
+	Functions   map[string]Function   `json:"functions"`
+	Enums       map[string]Enum       `json:"enums"`
+	Extensions  map[string]Extension  `json:"extensions"`
 }
 
 type Table struct {
@@ -56,8 +56,8 @@ type Sequence struct {
 }
 
 type MatView struct {
-	Name       string   `json:"name"`
-	Definition string   `json:"definition"`
+	Name       string `json:"name"`
+	Definition string `json:"definition"`
 }
 
 type View struct {

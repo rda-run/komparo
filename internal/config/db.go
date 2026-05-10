@@ -16,7 +16,7 @@ func GetConnectionString(flagURL string) (string, error) {
 		return flagURL, nil
 	}
 
-	// Try loading .env. Ignore error if it doesn't exist, 
+	// Try loading .env. Ignore error if it doesn't exist,
 	// as variables might be set directly in the environment.
 	_ = godotenv.Load()
 

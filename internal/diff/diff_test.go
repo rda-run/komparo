@@ -1,8 +1,8 @@
 package diff
 
 import (
-	"testing"
 	"github.com/rda-run/komparo/pkg/schema"
+	"testing"
 )
 
 func TestCompareTables(t *testing.T) {
@@ -11,8 +11,8 @@ func TestCompareTables(t *testing.T) {
 			"users": {
 				Name: "users",
 				Columns: map[string]schema.Column{
-					"id":   {Name: "id", Type: "integer", Nullable: false},
-					"age":  {Name: "age", Type: "integer", Nullable: true}, // Missing in actual
+					"id":  {Name: "id", Type: "integer", Nullable: false},
+					"age": {Name: "age", Type: "integer", Nullable: true}, // Missing in actual
 				},
 			},
 		},
@@ -24,18 +24,18 @@ func TestCompareTables(t *testing.T) {
 				Name: "users",
 				Columns: map[string]schema.Column{
 					"id":   {Name: "id", Type: "bigint", Nullable: false}, // Mismatch
-					"name": {Name: "name", Type: "text", Nullable: true}, // Extra
+					"name": {Name: "name", Type: "text", Nullable: true},  // Extra
 				},
 			},
 		},
 	}
 
 	diffs := Compare(expected, actual)
-	
+
 	if len(diffs) != 3 {
 		t.Fatalf("expected 3 diffs, got %d", len(diffs))
 	}
-	
+
 	missingFound, extraFound, mismatchFound := false, false, false
 	for _, d := range diffs {
 		if d.Status == "Missing" && d.Object == "users.age" {
@@ -48,7 +48,7 @@ func TestCompareTables(t *testing.T) {
 			mismatchFound = true
 		}
 	}
-	
+
 	if !missingFound || !extraFound || !mismatchFound {
 		t.Errorf("Diff logic failed to correctly categorize table modifications")
 	}

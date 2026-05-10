@@ -22,39 +22,41 @@ func Compare(expected, actual *schema.SchemaSnapshot) []SchemaDiff {
 	diffs = append(diffs, compareTables(expected.Tables, actual.Tables)...)
 
 	// Generic comparators
-	diffs = append(diffs, compareGeneric("Index", expected.Indices, actual.Indices, 
+	diffs = append(diffs, compareGeneric("Index", expected.Indices, actual.Indices,
 		func(i schema.Index) string { return i.TableName + "." + i.Name },
 		func(i schema.Index) string { return i.Definition })...)
 
-	diffs = append(diffs, compareGeneric("Constraint", expected.Constraints, actual.Constraints, 
+	diffs = append(diffs, compareGeneric("Constraint", expected.Constraints, actual.Constraints,
 		func(c schema.Constraint) string { return c.TableName + "." + c.Name },
 		func(c schema.Constraint) string { return c.Type + ": " + c.Definition })...)
 
-	diffs = append(diffs, compareGeneric("Sequence", expected.Sequences, actual.Sequences, 
+	diffs = append(diffs, compareGeneric("Sequence", expected.Sequences, actual.Sequences,
 		func(s schema.Sequence) string { return s.Name },
-		func(s schema.Sequence) string { return fmt.Sprintf("start=%d, min=%d, inc=%d, cycle=%v", s.Start, s.Min, s.Increment, s.Cycle) })...)
+		func(s schema.Sequence) string {
+			return fmt.Sprintf("start=%d, min=%d, inc=%d, cycle=%v", s.Start, s.Min, s.Increment, s.Cycle)
+		})...)
 
-	diffs = append(diffs, compareGeneric("View", expected.Views, actual.Views, 
+	diffs = append(diffs, compareGeneric("View", expected.Views, actual.Views,
 		func(v schema.View) string { return v.Name },
 		func(v schema.View) string { return v.Definition })...)
 
-	diffs = append(diffs, compareGeneric("MaterializedView", expected.MatViews, actual.MatViews, 
+	diffs = append(diffs, compareGeneric("MaterializedView", expected.MatViews, actual.MatViews,
 		func(v schema.MatView) string { return v.Name },
 		func(v schema.MatView) string { return v.Definition })...)
 
-	diffs = append(diffs, compareGeneric("Trigger", expected.Triggers, actual.Triggers, 
+	diffs = append(diffs, compareGeneric("Trigger", expected.Triggers, actual.Triggers,
 		func(t schema.Trigger) string { return t.TableName + "." + t.Name },
 		func(t schema.Trigger) string { return t.Definition })...)
 
-	diffs = append(diffs, compareGeneric("Function", expected.Functions, actual.Functions, 
+	diffs = append(diffs, compareGeneric("Function", expected.Functions, actual.Functions,
 		func(f schema.Function) string { return f.Name + "(" + f.Args + ")" },
 		func(f schema.Function) string { return fmt.Sprintf("returns %s, %s", f.ReturnType, f.Volatility) })...)
 
-	diffs = append(diffs, compareGeneric("Enum", expected.Enums, actual.Enums, 
+	diffs = append(diffs, compareGeneric("Enum", expected.Enums, actual.Enums,
 		func(e schema.Enum) string { return e.Name },
 		func(e schema.Enum) string { return strings.Join(e.Values, ",") })...)
 
-	diffs = append(diffs, compareGeneric("Extension", expected.Extensions, actual.Extensions, 
+	diffs = append(diffs, compareGeneric("Extension", expected.Extensions, actual.Extensions,
 		func(e schema.Extension) string { return e.Name },
 		func(e schema.Extension) string { return e.Version })...)
 
@@ -84,13 +86,13 @@ func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 
 			if expCol.Type != actCol.Type {
 				diffs = append(diffs, SchemaDiff{
-					Object: name + "." + colName, Type: "Column", Status: "Mismatch", 
+					Object: name + "." + colName, Type: "Column", Status: "Mismatch",
 					Expected: expCol.Type, Actual: actCol.Type,
 				})
 			}
 			if expCol.Nullable != actCol.Nullable {
 				diffs = append(diffs, SchemaDiff{
-					Object: name + "." + colName, Type: "Column", Status: "Mismatch", 
+					Object: name + "." + colName, Type: "Column", Status: "Mismatch",
 					Expected: fmt.Sprintf("nullable=%v", expCol.Nullable), Actual: fmt.Sprintf("nullable=%v", actCol.Nullable),
 				})
 			}

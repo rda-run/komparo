@@ -132,15 +132,15 @@ func (e *Extractor) extractTablesAndColumns(snapshot *schema.SchemaSnapshot) err
 
 	for rows.Next() {
 		var (
-			tableName   string
-			colName     string
-			dataType    string
-			isNullable  string
-			colDefault  *string
-			charMaxLen  *int
-			numPrec     *int
-			numScale    *int
-			collation   *string
+			tableName  string
+			colName    string
+			dataType   string
+			isNullable string
+			colDefault *string
+			charMaxLen *int
+			numPrec    *int
+			numScale   *int
+			collation  *string
 		)
 
 		if err := rows.Scan(&tableName, &colName, &dataType, &isNullable, &colDefault, &charMaxLen, &numPrec, &numScale, &collation); err != nil {

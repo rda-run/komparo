@@ -22,7 +22,7 @@ func (e *Extractor) extractIndices(snapshot *schema.SchemaSnapshot) error {
 		if err := rows.Scan(&idxName, &tableName, &idxDef); err != nil {
 			return err
 		}
-		
+
 		snapshot.Indices[idxName] = schema.Index{
 			Name:       idxName,
 			TableName:  tableName,

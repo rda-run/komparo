@@ -13,7 +13,7 @@ import (
 func GenerateFixScript(changes []SchemaChange, dbURL, sourceFile string) string {
 	var parts []string
 
-	parts = append(parts, generateHeader(dbURL, sourceFile))
+	parts = append(parts, generateHeader(dbURL, sourceFile, len(changes)))
 
 	if len(changes) == 0 {
 		parts = append(parts, "-- No differences found. Database already matches the snapshot.")
@@ -46,7 +46,7 @@ func GenerateFixScript(changes []SchemaChange, dbURL, sourceFile string) string 
 	return strings.Join(parts, "\n\n")
 }
 
-func generateHeader(dbURL, sourceFile string) string {
+func generateHeader(dbURL, sourceFile string, diffCount int) string {
 	redactedURL := config.RedactConnectionString(dbURL)
 	timestamp := time.Now().Format("2006-01-02T15:04:05Z")
 
@@ -54,12 +54,12 @@ func generateHeader(dbURL, sourceFile string) string {
 -- Source: %s
 -- Target: %s
 -- Generated at: %s
--- 
+--
 -- IMPORTANT: This is NOT a versioned migration. Review before executing.
 -- This script aligns the target database with the expected schema snapshot.
--- 
+--
 -- Found %d differences to fix.`,
-		sourceFile, redactedURL, timestamp, 0)
+		sourceFile, redactedURL, timestamp, diffCount)
 }
 
 func generateFooter() string {

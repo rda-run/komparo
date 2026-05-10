@@ -24,7 +24,7 @@ var snapshotCmd = &cobra.Command{
 		outFile, _ := cmd.Flags().GetString("out")
 		redactedURL := config.RedactConnectionString(dbURL)
 		fmt.Printf("Generating snapshot from %s into %s\n", redactedURL, outFile)
-		
+
 		extractor, err := db.NewExtractor(dbURL)
 		if err != nil {
 			return fmt.Errorf("failed to connect to database: %w", err)

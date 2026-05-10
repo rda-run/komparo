@@ -38,12 +38,12 @@ func (e *Extractor) extractFunctions(snapshot *schema.SchemaSnapshot) error {
 		if def != nil {
 			definition = *def
 		}
-		
+
 		volatility := "VOLATILE"
 		if vol != nil {
 			volatility = *vol
 		}
-		
+
 		returnType := ""
 		if retType != nil {
 			returnType = *retType

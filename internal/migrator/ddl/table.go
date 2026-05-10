@@ -69,17 +69,41 @@ func GenerateColumnDef(col schema.Column) string {
 }
 
 func formatColumnType(col schema.Column) string {
+	typeUpper := strings.ToUpper(col.Type)
+
 	if col.MaxLen != nil && *col.MaxLen > 0 {
-		return fmt.Sprintf("%s(%d)", col.Type, *col.MaxLen)
+		if typeAcceptsLength(typeUpper) {
+			return fmt.Sprintf("%s(%d)", col.Type, *col.MaxLen)
+		}
 	}
 
 	if col.NumericPrec != nil && col.NumericScale != nil {
-		return fmt.Sprintf("%s(%d,%d)", col.Type, *col.NumericPrec, *col.NumericScale)
+		if typeAcceptsPrecisionScale(typeUpper) {
+			return fmt.Sprintf("%s(%d,%d)", col.Type, *col.NumericPrec, *col.NumericScale)
+		}
 	}
 
 	if col.NumericPrec != nil {
-		return fmt.Sprintf("%s(%d)", col.Type, *col.NumericPrec)
+		if typeAcceptsPrecisionScale(typeUpper) {
+			return fmt.Sprintf("%s(%d)", col.Type, *col.NumericPrec)
+		}
 	}
 
 	return col.Type
+}
+
+func typeAcceptsLength(typeUpper string) bool {
+	switch typeUpper {
+	case "VARCHAR", "CHAR", "CHARACTER":
+		return true
+	}
+	return false
+}
+
+func typeAcceptsPrecisionScale(typeUpper string) bool {
+	switch typeUpper {
+	case "NUMERIC", "DECIMAL":
+		return true
+	}
+	return false
 }

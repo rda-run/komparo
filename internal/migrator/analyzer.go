@@ -43,7 +43,7 @@ func analyzeTables(expected, actual map[string]schema.Table) []SchemaChange {
 				changes = append(changes, SchemaChange{
 					ChangeType: ChangeCreate,
 					ObjectType: "Column",
-					ObjectName:   name + "." + colName,
+					ObjectName: name + "." + colName,
 					Expected: ColumnChange{
 						TableName:  name,
 						ColumnName: colName,

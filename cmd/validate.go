@@ -29,7 +29,7 @@ var validateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		
+
 		var data []byte
 
 		if strings.HasPrefix(file, "http://") || strings.HasPrefix(file, "https://") {
@@ -51,7 +51,7 @@ var validateCmd = &cobra.Command{
 				return fmt.Errorf("failed to read local snapshot file: %w", err)
 			}
 		}
-		
+
 		var expected schema.SchemaSnapshot
 		if err := json.Unmarshal(data, &expected); err != nil {
 			return fmt.Errorf("failed to parse snapshot JSON: %w", err)
@@ -69,7 +69,7 @@ var validateCmd = &cobra.Command{
 		}
 
 		diffs := diff.Compare(&expected, actual)
-		
+
 		if format == "json" {
 			printer.PrintJSON(diffs)
 		} else {

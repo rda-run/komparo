@@ -36,10 +36,10 @@ func PrintTable(diffs []diff.SchemaDiff) {
 		return
 	}
 	fmt.Printf("\n⚠️  Schema Divergence Detected!\n\n")
-	
+
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.StripEscape)
 	fmt.Fprintln(w, "STATUS\tTYPE\tOBJECT\tDETAILS")
-    
+
 	for _, d := range diffs {
 		details := ""
 		if d.Expected != "" {
