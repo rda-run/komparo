@@ -3,15 +3,13 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"strings"
 
 	"github.com/rda-run/komparo/internal/config"
 	"github.com/rda-run/komparo/internal/db"
 	"github.com/rda-run/komparo/internal/diff"
 	"github.com/rda-run/komparo/internal/printer"
+	"github.com/rda-run/komparo/internal/utils"
 	"github.com/rda-run/komparo/pkg/schema"
 	"github.com/spf13/cobra"
 )
@@ -30,26 +28,9 @@ var validateCmd = &cobra.Command{
 			return err
 		}
 
-		var data []byte
-
-		if strings.HasPrefix(file, "http://") || strings.HasPrefix(file, "https://") {
-			resp, httpErr := http.Get(file)
-			if httpErr != nil {
-				return fmt.Errorf("failed to fetch remote snapshot file: %w", httpErr)
-			}
-			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("failed to fetch remote snapshot file: HTTP %d", resp.StatusCode)
-			}
-			data, err = io.ReadAll(resp.Body)
-			if err != nil {
-				return fmt.Errorf("failed to read remote snapshot file body: %w", err)
-			}
-		} else {
-			data, err = os.ReadFile(file)
-			if err != nil {
-				return fmt.Errorf("failed to read local snapshot file: %w", err)
-			}
+		data, err := utils.ReadSnapshot(file)
+		if err != nil {
+			return err
 		}
 
 		var expected schema.SchemaSnapshot

@@ -9,6 +9,7 @@ import (
 	"github.com/rda-run/komparo/internal/config"
 	"github.com/rda-run/komparo/internal/db"
 	"github.com/rda-run/komparo/internal/migrator"
+	"github.com/rda-run/komparo/internal/utils"
 	"github.com/rda-run/komparo/pkg/schema"
 	"github.com/spf13/cobra"
 )
@@ -31,9 +32,9 @@ ever executed by Komparo.`,
 			return err
 		}
 
-		data, err := os.ReadFile(file)
+		data, err := utils.ReadSnapshot(file)
 		if err != nil {
-			return fmt.Errorf("failed to read snapshot file: %w", err)
+			return err
 		}
 
 		var expected schema.SchemaSnapshot
