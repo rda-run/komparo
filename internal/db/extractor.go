@@ -22,6 +22,7 @@ func NewExtractor(dbURL string) (*Extractor, error) {
 	}
 
 	if err := db.Ping(); err != nil {
+		db.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
