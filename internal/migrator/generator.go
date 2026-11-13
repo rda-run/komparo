@@ -20,6 +20,10 @@ func GenerateFixScript(changes []SchemaChange, dbURL, sourceFile string) string 
 		return strings.Join(parts, "\n\n")
 	}
 
+	// Without an explicit transaction psql autocommits each statement and the
+	// COMMIT/ROLLBACK choice in the footer would mean nothing.
+	parts = append(parts, "BEGIN;")
+
 	dropChanges := filterChanges(changes, ChangeDrop)
 	alterChanges := filterChanges(changes, ChangeAlter)
 	recreateChanges := filterChanges(changes, ChangeRecreate)
@@ -43,7 +47,7 @@ func GenerateFixScript(changes []SchemaChange, dbURL, sourceFile string) string 
 
 	parts = append(parts, generateFooter())
 
-	return strings.Join(parts, "\n\n")
+	return strings.Join(parts, "\n\n") + "\n"
 }
 
 func generateHeader(dbURL, sourceFile string, diffCount int) string {
