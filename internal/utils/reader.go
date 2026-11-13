@@ -7,9 +7,13 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/rda-run/komparo/pkg/schema"
 )
+
+// The default http.Client has no timeout and would hang a CI job forever.
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 // ReadSnapshot loads and parses a snapshot from a local file or a remote URL.
 func ReadSnapshot(path string) (*schema.SchemaSnapshot, error) {
@@ -28,7 +32,7 @@ func ReadSnapshot(path string) (*schema.SchemaSnapshot, error) {
 
 func readBytes(path string) ([]byte, error) {
 	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
-		resp, err := http.Get(path)
+		resp, err := httpClient.Get(path)
 		if err != nil {
 			return nil, fmt.Errorf("failed to fetch remote snapshot: %w", err)
 		}
