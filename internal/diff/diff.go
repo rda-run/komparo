@@ -18,7 +18,8 @@ type SchemaDiff struct {
 }
 
 func Compare(expected, actual *schema.SchemaSnapshot) []SchemaDiff {
-	var diffs []SchemaDiff
+	// Never nil, so the JSON output is "[]" instead of "null" when there are no differences.
+	diffs := []SchemaDiff{}
 
 	// Tables and Columns
 	diffs = append(diffs, compareTables(expected.Tables, actual.Tables)...)
