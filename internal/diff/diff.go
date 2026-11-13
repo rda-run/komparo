@@ -2,6 +2,8 @@ package diff
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/rda-run/komparo/pkg/schema"
@@ -63,10 +65,16 @@ func Compare(expected, actual *schema.SchemaSnapshot) []SchemaDiff {
 	return diffs
 }
 
+// sortedKeys makes the report order deterministic between runs.
+func sortedKeys[T any](m map[string]T) []string {
+	return slices.Sorted(maps.Keys(m))
+}
+
 func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 	var diffs []SchemaDiff
 
-	for name, expT := range exp {
+	for _, name := range sortedKeys(exp) {
+		expT := exp[name]
 		actT, exists := act[name]
 		if !exists {
 			diffs = append(diffs, SchemaDiff{
@@ -75,7 +83,8 @@ func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 			continue
 		}
 
-		for colName, expCol := range expT.Columns {
+		for _, colName := range sortedKeys(expT.Columns) {
+			expCol := expT.Columns[colName]
 			actCol, colExists := actT.Columns[colName]
 			if !colExists {
 				diffs = append(diffs, SchemaDiff{
@@ -98,16 +107,16 @@ func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 			}
 		}
 
-		for colName, actCol := range actT.Columns {
+		for _, colName := range sortedKeys(actT.Columns) {
 			if _, ok := expT.Columns[colName]; !ok {
 				diffs = append(diffs, SchemaDiff{
-					Object: name + "." + colName, Type: "Column", Status: "Extra", Actual: actCol.FullType(),
+					Object: name + "." + colName, Type: "Column", Status: "Extra", Actual: actT.Columns[colName].FullType(),
 				})
 			}
 		}
 	}
 
-	for name := range act {
+	for _, name := range sortedKeys(act) {
 		if _, ok := exp[name]; !ok {
 			diffs = append(diffs, SchemaDiff{
 				Object: name, Type: "Table", Status: "Extra", Actual: "Exists",
@@ -120,7 +129,8 @@ func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 
 func compareGeneric[T any](objType string, exp, act map[string]T, getName func(T) string, getDef func(T) string) []SchemaDiff {
 	var diffs []SchemaDiff
-	for k, expV := range exp {
+	for _, k := range sortedKeys(exp) {
+		expV := exp[k]
 		actV, exists := act[k]
 		if !exists {
 			diffs = append(diffs, SchemaDiff{
@@ -135,10 +145,10 @@ func compareGeneric[T any](objType string, exp, act map[string]T, getName func(T
 			})
 		}
 	}
-	for k, actV := range act {
+	for _, k := range sortedKeys(act) {
 		if _, ok := exp[k]; !ok {
 			diffs = append(diffs, SchemaDiff{
-				Object: getName(actV), Type: objType, Status: "Extra", Actual: "Exists",
+				Object: getName(act[k]), Type: objType, Status: "Extra", Actual: "Exists",
 			})
 		}
 	}
