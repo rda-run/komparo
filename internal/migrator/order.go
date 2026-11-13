@@ -3,6 +3,8 @@ package migrator
 import (
 	"cmp"
 	"slices"
+
+	"github.com/rda-run/komparo/pkg/schema"
 )
 
 var sectionOrder = map[ChangeType]int{ChangeDrop: 0, ChangeAlter: 1, ChangeRecreate: 2, ChangeCreate: 3}
@@ -28,9 +30,23 @@ func OrderChanges(changes []SchemaChange) []SchemaChange {
 }
 
 func rank(c SchemaChange) int {
-	r := typeOrder[c.ObjectType]
+	r := typeOrder[c.ObjectType] * 2
+	if isForeignKey(c) {
+		// A foreign key needs the unique constraint or index it references:
+		// create it after them, drop it before them.
+		r = typeOrder["Index"]*2 + 1
+	}
 	if c.ChangeType == ChangeDrop {
 		return -r
 	}
 	return r
+}
+
+func isForeignKey(c SchemaChange) bool {
+	for _, v := range []interface{}{c.Expected, c.Actual} {
+		if con, ok := v.(schema.Constraint); ok {
+			return con.Type == "f"
+		}
+	}
+	return false
 }
