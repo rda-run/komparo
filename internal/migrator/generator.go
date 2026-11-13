@@ -278,7 +278,7 @@ func generateAlterSQL(c SchemaChange) string {
 		}
 	case "Extension":
 		if expected, ok := c.Expected.(schema.Extension); ok {
-			return ddl.GenerateCreateExtensionDDL(expected)
+			return ddl.GenerateUpdateExtensionDDL(expected)
 		}
 	}
 	return ""

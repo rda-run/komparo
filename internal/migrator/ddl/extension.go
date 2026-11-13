@@ -16,6 +16,13 @@ func GenerateCreateExtensionDDL(e schema.Extension) string {
 		q(e.Name), versionClause)
 }
 
+// GenerateUpdateExtensionDDL changes the version of an installed extension.
+// CREATE EXTENSION IF NOT EXISTS would be a no-op here.
+func GenerateUpdateExtensionDDL(e schema.Extension) string {
+	return fmt.Sprintf("ALTER EXTENSION %s UPDATE TO %s;",
+		q(e.Name), pq.QuoteLiteral(e.Version))
+}
+
 func GenerateDropExtensionDDL(name string) string {
 	return fmt.Sprintf("DROP EXTENSION IF EXISTS %s;", q(name))
 }
