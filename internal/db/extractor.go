@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/lib/pq"
 	"github.com/rda-run/komparo/pkg/schema"
@@ -89,7 +90,9 @@ func (e *Extractor) ExtractFullSchema() (*schema.SchemaSnapshot, error) {
 
 	// 8. Functions
 	if err := e.extractFunctions(snapshot); err != nil {
-		// Ignore function parsing errors gracefully
+		// Function extraction errors are not fatal, but must not be silent:
+		// the snapshot is incomplete.
+		fmt.Fprintf(os.Stderr, "warning: failed to extract functions: %v\n", err)
 	}
 
 	// 9. Enums
