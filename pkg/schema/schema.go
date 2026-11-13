@@ -1,5 +1,10 @@
 package schema
 
+import (
+	"fmt"
+	"strings"
+)
+
 // SchemaSnapshot represents the entire database schema at a point in time.
 // It will be serialized to JSON.
 type SchemaSnapshot struct {
@@ -31,6 +36,25 @@ type Column struct {
 	NumericPrec  *int    `json:"numeric_precision,omitempty"`
 	NumericScale *int    `json:"numeric_scale,omitempty"`
 	Collation    *string `json:"collation,omitempty"`
+}
+
+// FullType returns the type with its length or precision modifiers,
+// e.g. "character varying(255)" or "numeric(10,2)".
+func (c Column) FullType() string {
+	switch strings.ToLower(c.Type) {
+	case "character varying", "character", "varchar", "char", "bit", "bit varying":
+		if c.MaxLen != nil && *c.MaxLen > 0 {
+			return fmt.Sprintf("%s(%d)", c.Type, *c.MaxLen)
+		}
+	case "numeric", "decimal":
+		if c.NumericPrec != nil && c.NumericScale != nil {
+			return fmt.Sprintf("%s(%d,%d)", c.Type, *c.NumericPrec, *c.NumericScale)
+		}
+		if c.NumericPrec != nil {
+			return fmt.Sprintf("%s(%d)", c.Type, *c.NumericPrec)
+		}
+	}
+	return c.Type
 }
 
 type Index struct {

@@ -79,15 +79,15 @@ func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 			actCol, colExists := actT.Columns[colName]
 			if !colExists {
 				diffs = append(diffs, SchemaDiff{
-					Object: name + "." + colName, Type: "Column", Status: "Missing", Expected: expCol.Type,
+					Object: name + "." + colName, Type: "Column", Status: "Missing", Expected: expCol.FullType(),
 				})
 				continue
 			}
 
-			if expCol.Type != actCol.Type {
+			if expType, actType := expCol.FullType(), actCol.FullType(); expType != actType {
 				diffs = append(diffs, SchemaDiff{
 					Object: name + "." + colName, Type: "Column", Status: "Mismatch",
-					Expected: expCol.Type, Actual: actCol.Type,
+					Expected: expType, Actual: actType,
 				})
 			}
 			if expCol.Nullable != actCol.Nullable {
@@ -101,7 +101,7 @@ func compareTables(exp, act map[string]schema.Table) []SchemaDiff {
 		for colName, actCol := range actT.Columns {
 			if _, ok := expT.Columns[colName]; !ok {
 				diffs = append(diffs, SchemaDiff{
-					Object: name + "." + colName, Type: "Column", Status: "Extra", Actual: actCol.Type,
+					Object: name + "." + colName, Type: "Column", Status: "Extra", Actual: actCol.FullType(),
 				})
 			}
 		}
