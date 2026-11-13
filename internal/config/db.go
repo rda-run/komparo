@@ -9,7 +9,7 @@ import (
 )
 
 // GetConnectionString returns the database connection string.
-// If flagURL is provide, it returns it directly. Otherwise, it attempts
+// If flagURL is provided, it returns it directly. Otherwise, it attempts
 // to load variables from a .env file and construct the string.
 func GetConnectionString(flagURL string) (string, error) {
 	if flagURL != "" {
@@ -42,16 +42,16 @@ func GetConnectionString(flagURL string) (string, error) {
 	return connStr, nil
 }
 
+var (
+	// password=value, password='quoted value' and ?password=value in URIs.
+	reKV = regexp.MustCompile(`(password\s*=\s*)('(?:[^'\\]|\\.)*'|[^\s&]+)`)
+	// postgres://user:pass@... and postgresql://user:pass@...
+	reURI = regexp.MustCompile(`(postgres(?:ql)?://[^:@/]*:)[^@/]*@`)
+)
+
 // RedactConnectionString replaces the password in a connection string with asterisks.
 // Supports both key-value (password=...) and URI (postgres://user:pass@...) formats.
 func RedactConnectionString(connStr string) string {
-	// Redact standard key-value format
-	reKV := regexp.MustCompile(`password=([^\s]+)`)
-	connStr = reKV.ReplaceAllString(connStr, "password=***")
-
-	// Redact URI format
-	reURI := regexp.MustCompile(`(postgres://[^:]+:)([^@]+)(@)`)
-	connStr = reURI.ReplaceAllString(connStr, "${1}***${3}")
-
-	return connStr
+	connStr = reKV.ReplaceAllString(connStr, "${1}***")
+	return reURI.ReplaceAllString(connStr, "${1}***@")
 }
