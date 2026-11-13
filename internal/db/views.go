@@ -2,13 +2,15 @@ package db
 
 import "github.com/rda-run/komparo/pkg/schema"
 
+// Reads pg_views instead of information_schema.views: the latter returns a
+// NULL definition when the user does not own the view (read-only users).
 func (e *Extractor) extractViews(snapshot *schema.SchemaSnapshot) error {
 	query := `
-		SELECT 
-			table_name,
-			view_definition
-		FROM information_schema.views
-		WHERE table_schema = 'public'
+		SELECT
+			viewname,
+			definition
+		FROM pg_views
+		WHERE schemaname = 'public'
 	`
 	rows, err := e.db.Query(query)
 	if err != nil {
