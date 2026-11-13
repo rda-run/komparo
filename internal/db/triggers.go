@@ -30,11 +30,12 @@ func (e *Extractor) extractTriggers(snapshot *schema.SchemaSnapshot) error {
 			return err
 		}
 
-		snapshot.Triggers[triggerName] = schema.Trigger{
+		t := schema.Trigger{
 			Name:       triggerName,
 			TableName:  tableName,
 			Definition: definition,
 		}
+		snapshot.Triggers[t.Key()] = t
 	}
 	return rows.Err()
 }

@@ -41,10 +41,13 @@ type Index struct {
 
 type Constraint struct {
 	Name       string `json:"name"`
-	Type       string `json:"type"` // PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK, EXCLUDE
+	Type       string `json:"type"` // pg_constraint.contype: p, f, u, c, x, ...
 	TableName  string `json:"table_name"`
 	Definition string `json:"definition"`
 }
+
+// Key identifies the constraint: names are only unique per table.
+func (c Constraint) Key() string { return c.TableName + "." + c.Name }
 
 type Sequence struct {
 	Name      string `json:"name"`
@@ -69,6 +72,24 @@ type Trigger struct {
 	Name       string `json:"name"`
 	TableName  string `json:"table_name"`
 	Definition string `json:"definition"`
+}
+
+// Key identifies the trigger: names are only unique per table.
+func (t Trigger) Key() string { return t.TableName + "." + t.Name }
+
+// Normalize re-keys constraints and triggers by table and name, so snapshots
+// written by older versions (keyed by name only) compare correctly.
+func (s *SchemaSnapshot) Normalize() {
+	s.Constraints = rekey(s.Constraints, Constraint.Key)
+	s.Triggers = rekey(s.Triggers, Trigger.Key)
+}
+
+func rekey[T any](m map[string]T, key func(T) string) map[string]T {
+	out := make(map[string]T, len(m))
+	for _, v := range m {
+		out[key(v)] = v
+	}
+	return out
 }
 
 type Function struct {

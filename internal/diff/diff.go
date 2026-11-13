@@ -27,7 +27,7 @@ func Compare(expected, actual *schema.SchemaSnapshot) []SchemaDiff {
 		func(i schema.Index) string { return i.Definition })...)
 
 	diffs = append(diffs, compareGeneric("Constraint", expected.Constraints, actual.Constraints,
-		func(c schema.Constraint) string { return c.TableName + "." + c.Name },
+		schema.Constraint.Key,
 		func(c schema.Constraint) string { return c.Type + ": " + c.Definition })...)
 
 	diffs = append(diffs, compareGeneric("Sequence", expected.Sequences, actual.Sequences,
@@ -45,7 +45,7 @@ func Compare(expected, actual *schema.SchemaSnapshot) []SchemaDiff {
 		func(v schema.MatView) string { return v.Definition })...)
 
 	diffs = append(diffs, compareGeneric("Trigger", expected.Triggers, actual.Triggers,
-		func(t schema.Trigger) string { return t.TableName + "." + t.Name },
+		schema.Trigger.Key,
 		func(t schema.Trigger) string { return t.Definition })...)
 
 	diffs = append(diffs, compareGeneric("Function", expected.Functions, actual.Functions,

@@ -308,7 +308,7 @@ func analyzeConstraints(expected, actual map[string]schema.Constraint) []SchemaC
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeCreate,
 				ObjectType: "Constraint",
-				ObjectName: expCon.TableName + "." + name,
+				ObjectName: name,
 				Expected:   expCon,
 				Actual:     nil,
 			})
@@ -316,7 +316,7 @@ func analyzeConstraints(expected, actual map[string]schema.Constraint) []SchemaC
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeRecreate,
 				ObjectType: "Constraint",
-				ObjectName: expCon.TableName + "." + name,
+				ObjectName: name,
 				Expected:   expCon,
 				Actual:     actCon,
 			})
@@ -328,7 +328,7 @@ func analyzeConstraints(expected, actual map[string]schema.Constraint) []SchemaC
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeDrop,
 				ObjectType: "Constraint",
-				ObjectName: actCon.TableName + "." + name,
+				ObjectName: name,
 				Expected:   nil,
 				Actual:     actCon,
 			})
@@ -472,7 +472,7 @@ func analyzeTriggers(expected, actual map[string]schema.Trigger) []SchemaChange 
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeCreate,
 				ObjectType: "Trigger",
-				ObjectName: expTrig.TableName + "." + name,
+				ObjectName: name,
 				Expected:   expTrig,
 				Actual:     nil,
 			})
@@ -480,7 +480,7 @@ func analyzeTriggers(expected, actual map[string]schema.Trigger) []SchemaChange 
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeRecreate,
 				ObjectType: "Trigger",
-				ObjectName: expTrig.TableName + "." + name,
+				ObjectName: name,
 				Expected:   expTrig,
 				Actual:     actTrig,
 			})
@@ -492,7 +492,7 @@ func analyzeTriggers(expected, actual map[string]schema.Trigger) []SchemaChange 
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeDrop,
 				ObjectType: "Trigger",
-				ObjectName: actTrig.TableName + "." + name,
+				ObjectName: name,
 				Expected:   nil,
 				Actual:     actTrig,
 			})

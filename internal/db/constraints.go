@@ -26,12 +26,13 @@ func (e *Extractor) extractConstraints(snapshot *schema.SchemaSnapshot) error {
 			return err
 		}
 
-		snapshot.Constraints[conName] = schema.Constraint{
+		c := schema.Constraint{
 			Name:       conName,
 			Type:       conType,
 			TableName:  tableName,
 			Definition: conDef,
 		}
+		snapshot.Constraints[c.Key()] = c
 	}
 	return rows.Err()
 }

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -10,7 +9,6 @@ import (
 	"github.com/rda-run/komparo/internal/db"
 	"github.com/rda-run/komparo/internal/migrator"
 	"github.com/rda-run/komparo/internal/utils"
-	"github.com/rda-run/komparo/pkg/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -32,14 +30,9 @@ ever executed by Komparo.`,
 			return err
 		}
 
-		data, err := utils.ReadSnapshot(file)
+		expected, err := utils.ReadSnapshot(file)
 		if err != nil {
 			return err
-		}
-
-		var expected schema.SchemaSnapshot
-		if err := json.Unmarshal(data, &expected); err != nil {
-			return fmt.Errorf("failed to parse snapshot JSON: %w", err)
 		}
 
 		extractor, err := db.NewExtractor(dbURL)
@@ -53,7 +46,7 @@ ever executed by Komparo.`,
 			return fmt.Errorf("failed to extract schema: %w", err)
 		}
 
-		changes := migrator.Analyze(&expected, actual)
+		changes := migrator.Analyze(expected, actual)
 
 		if len(changes) == 0 {
 			fmt.Println("✅ No differences found. Database already matches the snapshot.")

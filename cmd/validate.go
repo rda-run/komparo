@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -10,7 +9,6 @@ import (
 	"github.com/rda-run/komparo/internal/diff"
 	"github.com/rda-run/komparo/internal/printer"
 	"github.com/rda-run/komparo/internal/utils"
-	"github.com/rda-run/komparo/pkg/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -28,14 +26,9 @@ var validateCmd = &cobra.Command{
 			return err
 		}
 
-		data, err := utils.ReadSnapshot(file)
+		expected, err := utils.ReadSnapshot(file)
 		if err != nil {
 			return err
-		}
-
-		var expected schema.SchemaSnapshot
-		if err := json.Unmarshal(data, &expected); err != nil {
-			return fmt.Errorf("failed to parse snapshot JSON: %w", err)
 		}
 
 		extractor, err := db.NewExtractor(dbURL)
@@ -49,7 +42,7 @@ var validateCmd = &cobra.Command{
 			return fmt.Errorf("failed to extract schema: %w", err)
 		}
 
-		diffs := diff.Compare(&expected, actual)
+		diffs := diff.Compare(expected, actual)
 
 		if format == "json" {
 			printer.PrintJSON(diffs)

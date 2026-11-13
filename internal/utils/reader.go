@@ -1,15 +1,32 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/rda-run/komparo/pkg/schema"
 )
 
-// ReadSnapshot reads a snapshot from a local file or a remote URL.
-func ReadSnapshot(path string) ([]byte, error) {
+// ReadSnapshot loads and parses a snapshot from a local file or a remote URL.
+func ReadSnapshot(path string) (*schema.SchemaSnapshot, error) {
+	data, err := readBytes(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var snapshot schema.SchemaSnapshot
+	if err := json.Unmarshal(data, &snapshot); err != nil {
+		return nil, fmt.Errorf("failed to parse snapshot JSON: %w", err)
+	}
+	snapshot.Normalize()
+	return &snapshot, nil
+}
+
+func readBytes(path string) ([]byte, error) {
 	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
 		resp, err := http.Get(path)
 		if err != nil {
