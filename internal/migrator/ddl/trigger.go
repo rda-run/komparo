@@ -12,5 +12,5 @@ func GenerateCreateTriggerDDL(t schema.Trigger) string {
 
 func GenerateDropTriggerDDL(tableName, triggerName string) string {
 	return fmt.Sprintf("DROP TRIGGER IF EXISTS %s ON %s;",
-		triggerName, tableName)
+		q(triggerName), q(tableName))
 }

@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/lib/pq"
 	"github.com/rda-run/komparo/pkg/schema"
 )
 
 func GenerateCreateEnumDDL(e schema.Enum) string {
 	quoted := make([]string, len(e.Values))
 	for i, v := range e.Values {
-		quoted[i] = fmt.Sprintf("'%s'", v)
+		quoted[i] = pq.QuoteLiteral(v)
 	}
 	return fmt.Sprintf("CREATE TYPE %s AS ENUM (%s);",
-		e.Name, strings.Join(quoted, ", "))
+		q(e.Name), strings.Join(quoted, ", "))
 }
 
 func GenerateDropEnumDDL(name string) string {
-	return fmt.Sprintf("DROP TYPE IF EXISTS %s;", name)
+	return fmt.Sprintf("DROP TYPE IF EXISTS %s;", q(name))
 }

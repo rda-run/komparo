@@ -13,9 +13,9 @@ func GenerateCreateOrReplaceFunctionDDL(f schema.Function) string {
 	}
 
 	return fmt.Sprintf("CREATE OR REPLACE FUNCTION %s(%s)\nRETURNS %s\nLANGUAGE plpgsql\n%sAS $$\n%s\n$$;",
-		f.Name, f.Args, f.ReturnType, volatilityClause, f.Definition)
+		q(f.Name), f.Args, f.ReturnType, volatilityClause, f.Definition)
 }
 
 func GenerateDropFunctionDDL(name, args string) string {
-	return fmt.Sprintf("DROP FUNCTION IF EXISTS %s(%s);", name, args)
+	return fmt.Sprintf("DROP FUNCTION IF EXISTS %s(%s);", q(name), args)
 }

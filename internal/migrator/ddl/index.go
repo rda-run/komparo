@@ -11,5 +11,5 @@ func GenerateCreateIndexDDL(idx schema.Index) string {
 }
 
 func GenerateDropIndexDDL(idxName string) string {
-	return fmt.Sprintf("DROP INDEX IF EXISTS %s;", idxName)
+	return fmt.Sprintf("DROP INDEX IF EXISTS %s;", q(idxName))
 }
