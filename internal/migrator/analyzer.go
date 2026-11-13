@@ -22,7 +22,11 @@ func Analyze(expected, actual *schema.SchemaSnapshot) []SchemaChange {
 	changes = append(changes, analyzeObjects("Sequence", expected.Sequences, actual.Sequences,
 		func(e, a schema.Sequence) ChangeType { return alterIf(e != a) })...)
 
-	changes = append(changes, analyzeObjects("Index", expected.Indices, actual.Indices,
+	// Indices backing PRIMARY KEY / UNIQUE / EXCLUDE constraints are created and
+	// dropped by the constraint itself; emitting DDL for both fails.
+	changes = append(changes, analyzeObjects("Index",
+		withoutConstraintIndices(expected.Indices, expected.Constraints),
+		withoutConstraintIndices(actual.Indices, actual.Constraints),
 		func(e, a schema.Index) ChangeType { return recreateIf(e.Definition != a.Definition) })...)
 
 	changes = append(changes, analyzeObjects("Constraint", expected.Constraints, actual.Constraints,
@@ -65,6 +69,19 @@ func recreateIf(differ bool) ChangeType {
 
 func sortedKeys[T any](m map[string]T) []string {
 	return slices.Sorted(maps.Keys(m))
+}
+
+func withoutConstraintIndices(indices map[string]schema.Index, constraints map[string]schema.Constraint) map[string]schema.Index {
+	out := maps.Clone(indices)
+	for _, c := range constraints {
+		switch c.Type {
+		case "p", "u", "x":
+			if idx, ok := out[c.Name]; ok && idx.TableName == c.TableName {
+				delete(out, c.Name)
+			}
+		}
+	}
+	return out
 }
 
 // analyzeObjects emits CREATE for objects only in expected, DROP for objects
