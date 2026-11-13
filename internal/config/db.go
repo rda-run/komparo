@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -31,15 +32,24 @@ func GetConnectionString(flagURL string) (string, error) {
 		return "", fmt.Errorf("connection parameters are missing. Please provide --db flag or set PGSQL_HOST, PGSQL_PORT, PGSQL_USER, and PGSQL_DB in .env")
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s", host, port, user, dbname)
+	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
+		quoteValue(host), quoteValue(port), quoteValue(user), quoteValue(dbname))
 	if password != "" {
-		connStr += fmt.Sprintf(" password=%s", password)
+		connStr += " password=" + quoteValue(password)
 	}
 	if sslmode != "" {
-		connStr += fmt.Sprintf(" sslmode=%s", sslmode)
+		connStr += " sslmode=" + quoteValue(sslmode)
 	}
 
 	return connStr, nil
+}
+
+var valueEscaper = strings.NewReplacer(`\`, `\\`, `'`, `\'`)
+
+// quoteValue quotes a key-value connection string value, so passwords with
+// spaces, quotes or backslashes do not break (or inject options into) it.
+func quoteValue(v string) string {
+	return "'" + valueEscaper.Replace(v) + "'"
 }
 
 var (

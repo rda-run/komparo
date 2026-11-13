@@ -26,3 +26,9 @@ func TestRedactConnectionString(t *testing.T) {
 		t.Errorf("URL without password changed: %q", RedactConnectionString(in))
 	}
 }
+
+func TestQuoteValue(t *testing.T) {
+	if got := quoteValue(`a b'c\d`); got != `'a b\'c\\d'` {
+		t.Errorf("got %s", got)
+	}
+}
