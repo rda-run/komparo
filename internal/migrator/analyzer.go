@@ -14,7 +14,9 @@ func Analyze(expected, actual *schema.SchemaSnapshot) []SchemaChange {
 	changes = append(changes, analyzeTables(expected.Tables, actual.Tables)...)
 
 	changes = append(changes, analyzeObjects("Enum", expected.Enums, actual.Enums,
-		func(e, a schema.Enum) ChangeType { return "" })...)
+		func(e, a schema.Enum) ChangeType {
+			return alterIf(!slices.Equal(e.Values, a.Values))
+		})...)
 
 	changes = append(changes, analyzeObjects("Extension", expected.Extensions, actual.Extensions,
 		func(e, a schema.Extension) ChangeType { return alterIf(e.Version != a.Version) })...)

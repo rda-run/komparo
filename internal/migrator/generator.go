@@ -280,6 +280,12 @@ func generateAlterSQL(c SchemaChange) string {
 		if expected, ok := c.Expected.(schema.Extension); ok {
 			return ddl.GenerateUpdateExtensionDDL(expected)
 		}
+	case "Enum":
+		expected, expOk := c.Expected.(schema.Enum)
+		actual, actOk := c.Actual.(schema.Enum)
+		if expOk && actOk {
+			return ddl.GenerateAlterEnumDDL(expected, actual)
+		}
 	}
 	return ""
 }
