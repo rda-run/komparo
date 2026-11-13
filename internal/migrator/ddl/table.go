@@ -36,7 +36,7 @@ func GenerateDropColumnDDL(tableName, colName string) string {
 
 func GenerateAlterColumnTypeDDL(tableName, colName string, col schema.Column) string {
 	return fmt.Sprintf("ALTER TABLE %s ALTER COLUMN %s TYPE %s;",
-		q(tableName), q(colName), formatColumnType(col))
+		q(tableName), q(colName), col.FullType())
 }
 
 func GenerateAlterColumnNullableDDL(tableName, colName string, nullable bool) string {
@@ -54,7 +54,7 @@ func GenerateAlterColumnDefaultDDL(tableName, colName string, defaultValue *stri
 }
 
 func GenerateColumnDef(col schema.Column) string {
-	parts := []string{q(col.Name), formatColumnType(col)}
+	parts := []string{q(col.Name), col.FullType()}
 
 	if col.Collation != nil {
 		parts = append(parts, "COLLATE", q(*col.Collation))
@@ -69,44 +69,4 @@ func GenerateColumnDef(col schema.Column) string {
 	}
 
 	return strings.Join(parts, " ")
-}
-
-func formatColumnType(col schema.Column) string {
-	typeUpper := strings.ToUpper(col.Type)
-
-	if col.MaxLen != nil && *col.MaxLen > 0 {
-		if typeAcceptsLength(typeUpper) {
-			return fmt.Sprintf("%s(%d)", col.Type, *col.MaxLen)
-		}
-	}
-
-	if col.NumericPrec != nil && col.NumericScale != nil {
-		if typeAcceptsPrecisionScale(typeUpper) {
-			return fmt.Sprintf("%s(%d,%d)", col.Type, *col.NumericPrec, *col.NumericScale)
-		}
-	}
-
-	if col.NumericPrec != nil {
-		if typeAcceptsPrecisionScale(typeUpper) {
-			return fmt.Sprintf("%s(%d)", col.Type, *col.NumericPrec)
-		}
-	}
-
-	return col.Type
-}
-
-func typeAcceptsLength(typeUpper string) bool {
-	switch typeUpper {
-	case "VARCHAR", "CHAR", "CHARACTER":
-		return true
-	}
-	return false
-}
-
-func typeAcceptsPrecisionScale(typeUpper string) bool {
-	switch typeUpper {
-	case "NUMERIC", "DECIMAL":
-		return true
-	}
-	return false
 }

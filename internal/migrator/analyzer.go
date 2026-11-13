@@ -126,8 +126,8 @@ func analyzeTables(expected, actual map[string]schema.Table) []SchemaChange {
 
 			var details []PropertyChange
 
-			if expCol.Type != actCol.Type {
-				details = append(details, PropertyChange{Property: "type", OldValue: actCol.Type, NewValue: expCol.Type})
+			if expType, actType := expCol.FullType(), actCol.FullType(); expType != actType {
+				details = append(details, PropertyChange{Property: "type", OldValue: actType, NewValue: expType})
 			}
 
 			if expCol.Nullable != actCol.Nullable {
