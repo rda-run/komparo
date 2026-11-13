@@ -15,20 +15,3 @@ func GenerateDropConstraintDDL(tableName, conName string) string {
 	return fmt.Sprintf("ALTER TABLE %s DROP CONSTRAINT IF EXISTS %s;",
 		tableName, conName)
 }
-
-func GetConstraintTypeDescription(conType string) string {
-	switch conType {
-	case "p":
-		return "PRIMARY KEY"
-	case "f":
-		return "FOREIGN KEY"
-	case "u":
-		return "UNIQUE"
-	case "c":
-		return "CHECK"
-	case "x":
-		return "EXCLUDE"
-	default:
-		return conType
-	}
-}

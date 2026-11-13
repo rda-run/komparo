@@ -11,6 +11,8 @@ const (
 	ChangeRecreate ChangeType = "RECREATE"
 )
 
+// SchemaChange describes one difference. Expected and Actual hold the schema
+// object (schema.Table, schema.Index, ...), or a ColumnChange for columns.
 type SchemaChange struct {
 	ChangeType ChangeType
 	ObjectType string
@@ -26,60 +28,9 @@ type PropertyChange struct {
 	NewValue string
 }
 
-type TableChange struct {
-	TableName string
-	Expected  schema.Table
-	Actual    schema.Table
-}
-
 type ColumnChange struct {
 	TableName  string
 	ColumnName string
 	Expected   schema.Column
 	Actual     schema.Column
-}
-
-type IndexChange struct {
-	Expected schema.Index
-	Actual   schema.Index
-}
-
-type ConstraintChange struct {
-	Expected schema.Constraint
-	Actual   schema.Constraint
-}
-
-type SequenceChange struct {
-	Expected schema.Sequence
-	Actual   schema.Sequence
-}
-
-type ViewChange struct {
-	Expected schema.View
-	Actual   schema.View
-}
-
-type MatViewChange struct {
-	Expected schema.MatView
-	Actual   schema.MatView
-}
-
-type TriggerChange struct {
-	Expected schema.Trigger
-	Actual   schema.Trigger
-}
-
-type FunctionChange struct {
-	Expected schema.Function
-	Actual   schema.Function
-}
-
-type EnumChange struct {
-	Expected schema.Enum
-	Actual   schema.Enum
-}
-
-type ExtensionChange struct {
-	Expected schema.Extension
-	Actual   schema.Extension
 }

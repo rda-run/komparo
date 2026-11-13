@@ -19,7 +19,3 @@ func GenerateCreateEnumDDL(e schema.Enum) string {
 func GenerateDropEnumDDL(name string) string {
 	return fmt.Sprintf("DROP TYPE IF EXISTS %s;", name)
 }
-
-func GenerateAddEnumValueDDL(enumName, value string) string {
-	return fmt.Sprintf("ALTER TYPE %s ADD VALUE '%s';", enumName, value)
-}
