@@ -1,64 +1,36 @@
 package migrator
 
+import (
+	"cmp"
+	"slices"
+)
+
+var sectionOrder = map[ChangeType]int{ChangeDrop: 0, ChangeAlter: 1, ChangeRecreate: 2, ChangeCreate: 3}
+
+// Creation order; drops run in reverse.
+var typeOrder = map[string]int{
+	"Extension": 0, "Enum": 1, "Sequence": 2, "Table": 3, "Column": 4, "Constraint": 5,
+	"Index": 6, "View": 7, "MaterializedView": 8, "Function": 9, "Trigger": 10,
+}
+
+// OrderChanges sorts by section (DROP, ALTER, RECREATE, CREATE) and then by
+// dependency order of the object type. The sort is stable, so the name order
+// produced by Analyze is kept within each group.
 func OrderChanges(changes []SchemaChange) []SchemaChange {
-	var toCreate, toDrop, toAlter, toRecreate []SchemaChange
-
-	for _, c := range changes {
-		switch c.ChangeType {
-		case ChangeCreate:
-			toCreate = append(toCreate, c)
-		case ChangeDrop:
-			toDrop = append(toDrop, c)
-		case ChangeAlter:
-			toAlter = append(toAlter, c)
-		case ChangeRecreate:
-			toRecreate = append(toRecreate, c)
-		}
-	}
-
-	orderCreate := []string{"Extension", "Enum", "Sequence", "Table", "Column",
-		"Constraint", "Index", "View", "MaterializedView", "Function", "Trigger"}
-
-	orderedCreate := sortByTypeOrder(toCreate, orderCreate)
-
-	orderDrop := reverse(orderCreate)
-	orderedDrop := sortByTypeOrder(toDrop, orderDrop)
-
-	orderedAlter := sortByTypeOrder(toAlter, orderCreate)
-	orderedRecreate := sortByTypeOrder(toRecreate, orderCreate)
-
-	result := append([]SchemaChange{}, orderedDrop...)
-	result = append(result, orderedAlter...)
-	result = append(result, orderedRecreate...)
-	result = append(result, orderedCreate...)
-
+	result := slices.Clone(changes)
+	slices.SortStableFunc(result, func(a, b SchemaChange) int {
+		return cmp.Or(
+			cmp.Compare(sectionOrder[a.ChangeType], sectionOrder[b.ChangeType]),
+			cmp.Compare(rank(a), rank(b)),
+		)
+	})
 	return result
 }
 
-func sortByTypeOrder(changes []SchemaChange, order []string) []SchemaChange {
-	orderMap := make(map[string]int)
-	for i, t := range order {
-		orderMap[t] = i
+func rank(c SchemaChange) int {
+	r := typeOrder[c.ObjectType]
+	if c.ChangeType == ChangeDrop {
+		return -r
 	}
-
-	result := make([]SchemaChange, len(changes))
-	copy(result, changes)
-
-	for i := 0; i < len(result); i++ {
-		for j := i + 1; j < len(result); j++ {
-			if orderMap[result[i].ObjectType] > orderMap[result[j].ObjectType] {
-				result[i], result[j] = result[j], result[i]
-			}
-		}
-	}
-
-	return result
-}
-
-func reverse(s []string) []string {
-	result := make([]string, len(s))
-	for i, v := range s {
-		result[len(s)-1-i] = v
-	}
-	return result
+	return r
 }

@@ -1,6 +1,8 @@
 package migrator
 
 import (
+	"maps"
+	"slices"
 	"strconv"
 
 	"github.com/rda-run/komparo/pkg/schema"
@@ -61,13 +63,18 @@ func recreateIf(differ bool) ChangeType {
 	return ""
 }
 
+func sortedKeys[T any](m map[string]T) []string {
+	return slices.Sorted(maps.Keys(m))
+}
+
 // analyzeObjects emits CREATE for objects only in expected, DROP for objects
 // only in actual, and whatever changed returns (if not empty) for the rest.
-// The map key is the object name.
+// The map key is the object name. Output is sorted by name.
 func analyzeObjects[T any](objType string, expected, actual map[string]T, changed func(exp, act T) ChangeType) []SchemaChange {
 	var changes []SchemaChange
 
-	for name, exp := range expected {
+	for _, name := range sortedKeys(expected) {
+		exp := expected[name]
 		act, exists := actual[name]
 		if !exists {
 			changes = append(changes, SchemaChange{
@@ -80,7 +87,7 @@ func analyzeObjects[T any](objType string, expected, actual map[string]T, change
 		}
 	}
 
-	for name := range actual {
+	for _, name := range sortedKeys(actual) {
 		if _, ok := expected[name]; !ok {
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeDrop, ObjectType: objType, ObjectName: name, Actual: actual[name],
@@ -94,7 +101,8 @@ func analyzeObjects[T any](objType string, expected, actual map[string]T, change
 func analyzeTables(expected, actual map[string]schema.Table) []SchemaChange {
 	var changes []SchemaChange
 
-	for name, expTable := range expected {
+	for _, name := range sortedKeys(expected) {
+		expTable := expected[name]
 		actTable, exists := actual[name]
 		if !exists {
 			changes = append(changes, SchemaChange{
@@ -103,7 +111,8 @@ func analyzeTables(expected, actual map[string]schema.Table) []SchemaChange {
 			continue
 		}
 
-		for colName, expCol := range expTable.Columns {
+		for _, colName := range sortedKeys(expTable.Columns) {
+			expCol := expTable.Columns[colName]
 			expChange := ColumnChange{TableName: name, ColumnName: colName, Expected: expCol}
 
 			actCol, colExists := actTable.Columns[colName]
@@ -143,7 +152,7 @@ func analyzeTables(expected, actual map[string]schema.Table) []SchemaChange {
 			}
 		}
 
-		for colName := range actTable.Columns {
+		for _, colName := range sortedKeys(actTable.Columns) {
 			if _, ok := expTable.Columns[colName]; !ok {
 				changes = append(changes, SchemaChange{
 					ChangeType: ChangeDrop, ObjectType: "Column", ObjectName: name + "." + colName,
@@ -153,7 +162,7 @@ func analyzeTables(expected, actual map[string]schema.Table) []SchemaChange {
 		}
 	}
 
-	for name := range actual {
+	for _, name := range sortedKeys(actual) {
 		if _, ok := expected[name]; !ok {
 			changes = append(changes, SchemaChange{
 				ChangeType: ChangeDrop, ObjectType: "Table", ObjectName: name, Actual: actual[name],

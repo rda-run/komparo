@@ -2,15 +2,19 @@ package ddl
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/rda-run/komparo/pkg/schema"
 )
 
 func GenerateCreateTableDDL(table schema.Table) string {
+	// The snapshot does not record column positions; sort by name so the
+	// output is at least stable between runs.
 	var cols []string
-	for _, col := range table.Columns {
-		cols = append(cols, GenerateColumnDef(col))
+	for _, name := range slices.Sorted(maps.Keys(table.Columns)) {
+		cols = append(cols, GenerateColumnDef(table.Columns[name]))
 	}
 
 	return fmt.Sprintf("CREATE TABLE %s (\n    %s\n);",
